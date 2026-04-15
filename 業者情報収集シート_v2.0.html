@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>業者情報収集シート v2.0 — 久留米市 2026年4月</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Hiragino Sans','Yu Gothic','Noto Sans JP',sans-serif;font-size:13px;color:#2c2c2a;background:#f5f4f0;min-height:100vh}
+#app{max-width:1100px;margin:0 auto;padding:20px 16px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding-bottom:12px;border-bottom:2px solid #0F6E56}
+.header-title{font-weight:500;font-size:16px;color:#0F6E56}
+.header-meta{font-size:11px;color:#888780;margin-left:10px}
+.header-right{display:flex;gap:8px;align-items:center}
+.ts{font-size:10px;color:#888780}
+.btn-pdf{background:none;border:0.5px solid #D3D1C7;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;color:#5f5e5a}
+.btn-pdf:hover{background:#f1efea}
+.btn-add{background:#0F6E56;color:#E1F5EE;border:none;padding:5px 14px;border-radius:6px;cursor:pointer;font-weight:500;font-size:13px}
+.btn-add:hover{background:#085041}
+.tabs{display:flex;gap:4px;margin-bottom:12px;flex-wrap:wrap}
+.tab{padding:4px 12px;border-radius:14px;border:none;background:none;cursor:pointer;font-size:12px;color:#888780}
+.tab.on{background:#e8e6e0;color:#2c2c2a;font-weight:500}
+.tab:hover:not(.on){background:#f1efea}
+.tbl-wrap{overflow-x:auto;background:#fff;border-radius:8px;border:0.5px solid #D3D1C7}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
+th{padding:7px 8px;font-size:11px;font-weight:500;color:#888780;border-bottom:1px solid #e8e6e0;text-align:left;background:#f8f7f3;white-space:nowrap}
+td{padding:7px 8px;border-bottom:0.5px solid #e8e6e0;vertical-align:top;font-size:12px}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafaf7}
+.badge{display:inline-block;padding:2px 9px;border-radius:10px;font-size:11px;cursor:pointer;white-space:nowrap;user-select:none}
+.badge:hover{opacity:.8}
+.link{font-size:10px;color:#0F6E56;display:block;text-decoration:none}
+.link:hover{text-decoration:underline}
+.muted{color:#888780}
+.ibtn{background:none;border:0.5px solid #D3D1C7;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:11px;color:#5f5e5a}
+.ibtn:hover{background:#f1efea}
+.ibtn.del{color:#712B13;border-color:#F5C4B3}
+.ibtn.del:hover{background:#FAECE7}
+.summary{display:flex;gap:14px;flex-wrap:wrap;margin-top:10px;font-size:11px;color:#888780;align-items:center}
+.sum-badge{padding:1px 7px;border-radius:8px;font-size:10px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding-top:30px;overflow-y:auto}
+.modal{background:#fff;border-radius:12px;padding:24px;width:500px;max-height:90vh;overflow-y:auto;border:0.5px solid #D3D1C7;margin-bottom:30px}
+.modal-title{font-weight:500;font-size:15px;margin-bottom:18px;color:#2c2c2a}
+.fl{margin-bottom:12px}
+.fl label{display:block;font-size:11px;color:#888780;font-weight:500;margin-bottom:3px}
+.ifield{width:100%;padding:7px 8px;border:0.5px solid #C4C2B9;border-radius:6px;font-size:13px;color:#2c2c2a;background:#fff}
+.ifield:focus{outline:none;border-color:#0F6E56}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.btn-cancel{background:none;border:0.5px solid #D3D1C7;border-radius:6px;padding:6px 16px;cursor:pointer;font-size:13px;color:#5f5e5a}
+.btn-save{background:#0F6E56;color:#E1F5EE;border:none;border-radius:6px;padding:6px 20px;cursor:pointer;font-weight:500;font-size:13px}
+.btn-save:hover{background:#085041}
+.del-confirm{font-size:11px}
+.del-confirm span{color:#712B13}
+.check-group{display:flex;flex-wrap:wrap;gap:5px;margin-top:3px}
+.chk{display:flex;align-items:center;gap:4px;font-size:12px;color:#2c2c2a;cursor:pointer;padding:3px 8px;border:0.5px solid #D3D1C7;border-radius:4px;user-select:none}
+.chk:hover{background:#f1efea}
+.chk input[type=checkbox]{width:13px;height:13px;accent-color:#0F6E56;cursor:pointer;flex-shrink:0}
+.svc-badge{display:inline-block;font-size:10px;padding:1px 5px;border-radius:8px;margin:1px 1px;background:#E8E6E0;color:#444441;border:0.5px solid #C4C2B9;white-space:nowrap}
+.section-label{font-size:10px;font-weight:600;color:#0F6E56;text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;padding-bottom:4px;border-bottom:1px solid #e8e6e0}
+@media print{
+  body{background:#fff}
+  #app{padding:8mm;max-width:100%}
+  .header-right,.tabs,.ibtn,.del-confirm{display:none!important}
+  .tbl-wrap{border:none}
+  th,td{padding:4px 6px;font-size:9px}
+  .badge{font-size:9px;padding:1px 5px}
+  .summary{font-size:9px}
+  @page{size:A4 landscape;margin:10mm}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div>
+      <span class="header-title">業者情報収集シート</span>
+      <span class="header-meta" id="ver-meta">v2.0 ／ 久留米市 2026年4月</span>
+    </div>
+    <div class="header-right">
+      <span class="ts" id="ts-label"></span>
+      <button class="btn-pdf" onclick="window.print()">印刷 / PDF</button>
+      <button class="btn-add" onclick="openAdd()">＋ 業者追加</button>
+    </div>
+  </div>
+
+  <div class="tabs" id="tabs"></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <colgroup>
+        <col style="width:3%"><col style="width:10%"><col style="width:7%"><col style="width:13%">
+        <col style="width:8%"><col style="width:5%"><col style="width:8%"><col style="width:7%">
+        <col style="width:8%"><col style="width:6%"><col style="width:9%">
+        <col style="width:9%"><col style="width:7%">
+      </colgroup>
+      <thead>
+        <tr>
+          <th style="text-align:center">#</th>
+          <th>業者名</th><th>カテゴリ</th><th>対応可能業務</th>
+          <th>電話番号</th><th style="text-align:center">4月相談</th>
+          <th>予約日時候補</th><th>確定日時</th>
+          <th>見積金額</th><th>担当者</th><th>メモ</th>
+          <th style="text-align:center">ステータス</th><th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+  </div>
+
+  <div class="summary" id="summary"></div>
+</div>
+
+<div class="overlay" id="overlay" style="display:none" onclick="overlayClick(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-title" id="modal-title">業者を追加</div>
+    <input type="hidden" id="edit-id">
+    <div class="fl"><label>業者名 *</label><input class="ifield" id="f-name" placeholder="例：HIROリサイクル"></div>
+    <div class="g2">
+      <div class="fl"><label>カテゴリ</label>
+        <select class="ifield" id="f-cat">
+          <option>不用品回収・複合</option><option>不用品回収</option>
+          <option>買取・不用品回収</option><option>引越し業者</option><option>レンタカー</option>
+          <option>クリーンセンター・市役所</option><option>ハウスクリーニング</option><option>相談窓口</option>
+        </select>
+      </div>
+      <div class="fl"><label>ステータス</label>
+        <select class="ifield" id="f-status">
+          <option>未連絡</option><option>連絡中</option><option>アポ済</option><option>見積取得</option><option>選定済</option><option>却下</option>
+        </select>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fl"><label>電話番号</label><input class="ifield" id="f-phone" placeholder="0942-xx-xxxx"></div>
+      <div class="fl"><label>担当者名</label><input class="ifield" id="f-contact" placeholder="山田 様"></div>
+    </div>
+    <div class="fl"><label>URL</label><input class="ifield" id="f-url" placeholder="https://..."></div>
+    <div class="g2">
+      <div class="fl"><label>一般廃棄物許可</label>
+        <select class="ifield" id="f-permit">
+          <option>未確認</option><option>確認済み○</option><option>なし</option><option>—</option>
+        </select>
+      </div>
+      <div class="fl"><label>施設搬入同時対応</label>
+        <select class="ifield" id="f-sim">
+          <option>◎</option><option>△</option><option>—</option><option>未確認</option>
+        </select>
+      </div>
+    </div>
+    <div class="section-label">対応可能業務</div>
+    <div class="fl">
+      <div class="check-group">
+        <label class="chk"><input type="checkbox" name="services" value="処分">処分</label>
+        <label class="chk"><input type="checkbox" name="services" value="買取">買取</label>
+        <label class="chk"><input type="checkbox" name="services" value="施設へ運搬">施設へ運搬</label>
+        <label class="chk"><input type="checkbox" name="services" value="原状復帰・清掃">原状復帰・清掃</label>
+        <label class="chk"><input type="checkbox" name="services" value="その他">その他</label>
+      </div>
+    </div>
+
+    <div class="section-label">見積手順</div>
+    <div class="fl"><label>見積依頼方法（複数可）</label>
+      <div class="check-group">
+        <label class="chk"><input type="checkbox" name="estMethod" value="電話">電話</label>
+        <label class="chk"><input type="checkbox" name="estMethod" value="メール">メール</label>
+        <label class="chk"><input type="checkbox" name="estMethod" value="フォーム入力">フォーム入力</label>
+        <label class="chk"><input type="checkbox" name="estMethod" value="SNS">SNS</label>
+      </div>
+    </div>
+    <div class="g2">
+      <div class="fl"><label>4月帰省時点での相談可否</label>
+        <select class="ifield" id="f-april">
+          <option>未確認</option><option>Yes</option><option>No</option>
+        </select>
+      </div>
+      <div class="fl"><label>見積金額</label><input class="ifield" id="f-quote" placeholder="軽トラ1台 15,000円"></div>
+    </div>
+    <div class="fl"><label>相談前に必要な準備</label>
+      <textarea class="ifield" id="f-prepNotes" rows="2" placeholder="物品リスト作成・写真撮影・現地確認など…" style="resize:vertical"></textarea>
+    </div>
+
+    <div class="section-label">日程</div>
+    <div class="fl"><label>予約日時候補（フリー記入 ／ 確定まで残す）</label>
+      <textarea class="ifield" id="f-appt" rows="2" placeholder="例：4/22 14:00〜 または 4/23 午前中" style="resize:vertical"></textarea>
+    </div>
+    <div class="fl"><label>確定日時</label><input class="ifield" id="f-confirmedDate" placeholder="例：4/22（火）14:00 確定"></div>
+
+    <div class="fl"><label>メモ・印象</label>
+      <textarea class="ifield" id="f-notes" rows="3" placeholder="対応の印象、気になる点など…" style="resize:vertical"></textarea>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-cancel" onclick="closeModal()">キャンセル</button>
+      <button class="btn-save" onclick="saveModal()" id="btn-save-label">追加</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = "vendor-sheet-v2";
+const CATS = ["すべて","不用品回収・複合","不用品回収","買取・不用品回収","引越し業者","レンタカー","クリーンセンター・市役所","ハウスクリーニング","相談窓口"];
+const STATS = ["未連絡","連絡中","アポ済","見積取得","選定済","却下"];
+const SS = {
+  "未連絡": {bg:"#F1EFE8",col:"#444441",bd:"#D3D1C7"},
+  "連絡中": {bg:"#EAF2FB",col:"#1A5276",bd:"#A9CCE3"},
+  "アポ済":  {bg:"#E1F5EE",col:"#085041",bd:"#9FE1CB"},
+  "見積取得":{bg:"#FAEEDA",col:"#633806",bd:"#FAC775"},
+  "選定済":  {bg:"#EAF3DE",col:"#27500A",bd:"#C0DD97"},
+  "却下":    {bg:"#FAECE7",col:"#712B13",bd:"#F5C4B3"},
+};
+const SC = {"◎":"#0F6E56","△":"#854F0B","—":"#888780","未確認":"#888780"};
+
+const INIT = [
+  {id:1,name:"HIROリサイクル",cat:"不用品回収・複合",phone:"要確認",url:"https://www.hirorecycle.com/",permit:"未確認",sim:"◎",appt:"",quote:"",contact:"",notes:"久留米市荒木町。遺品整理士認定。引越し＋回収の同時実績あり。家具移動口コミ確認済。",status:"未連絡",services:["処分","買取","施設へ運搬"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:2,name:"不用品回収セブン福岡",cat:"不用品回収・複合",phone:"要確認",url:"https://www.huyouhinkaisyuu-fukuoka.com/area/kurumeshi",permit:"未確認",sim:"◎",appt:"",quote:"",contact:"",notes:"年中無休・自社スタッフのみ。家具移動オプションあり。施設搬入も交渉可。",status:"未連絡",services:["処分","施設へ運搬"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:3,name:"福岡片付け隊",cat:"不用品回収",phone:"要確認",url:"https://www.fukuoka-katazuketai.com/kurume/",permit:"未確認",sim:"△",appt:"",quote:"",contact:"",notes:"積み放題パックあり。便利屋サービスあり。搬入同時は要確認。",status:"未連絡",services:["処分"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:4,name:"不用品買取センター",cat:"買取・不用品回収",phone:"要確認",url:"https://www.bfh.jp/fukuoka/kurumeshi/",permit:"未確認",sim:"△",appt:"",quote:"",contact:"",notes:"買取査定・費用相殺。引越し大量処分実績。搬入同時は要確認。",status:"未連絡",services:["処分","買取"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:5,name:"リサイクル 野暮らし",cat:"不用品回収",phone:"要確認",url:"https://meetsmore.com/p/YaT1Vex74gAbnEOW/unwanted-item-pick-up",permit:"未確認",sim:"△",appt:"",quote:"軽トラ1台 11,000円〜",contact:"",notes:"ミツモア★5.0・70件。休日対応可。搬入同時は要確認。",status:"未連絡",services:["処分"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:6,name:"まごのてハウスサービス",cat:"不用品回収",phone:"要確認",url:"https://meetsmore.com/p/aE-kccrK2ZV48qvp/unwanted-item-pick-up",permit:"未確認",sim:"△",appt:"",quote:"",contact:"",notes:"ミツモア★5.0・57件。現地見積無料・即日・家具解体対応。搬入同時は要確認。",status:"未連絡",services:["処分"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:7,name:"100円レンタカー 久留米インター",cat:"レンタカー",phone:"0942-43-5482",url:"https://100yen-rentacar.jp/base/detail/514",permit:"—",sim:"—",appt:"",quote:"軽トラ 6h:4,000/24h:6,100円",contact:"",notes:"九州道久留米インターそば。9:00〜18:00。パワーゲート付きあり（準中型要）。",status:"未連絡",services:[],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:8,name:"ニコニコレンタカー 久留米駅前",cat:"レンタカー",phone:"要確認",url:"https://www.2525r.com/fukuoka/kurume/store-00217-001.html",permit:"—",sim:"—",appt:"",quote:"要確認",contact:"",notes:"久留米市城南町8-25。久留米駅徒歩圏。",status:"未連絡",services:[],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:9,name:"久留米中央第3 地域包括支援センター",cat:"相談窓口",phone:"0942-27-6886",url:"",permit:"—",sim:"—",appt:"",quote:"無料",contact:"",notes:"諏訪野町1903-6 えーるピア内。月〜金8:30〜17:15。",status:"未連絡",services:[],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:10,name:"宮ノ陣クリーンセンター",cat:"クリーンセンター・市役所",phone:"0942-27-7490",url:"",permit:"—",sim:"—",appt:"",quote:"10kgごと50円（現金）",contact:"",notes:"久留米市宮ノ陣町八丁島2225。月〜土8:30〜17:00。予約不要・搬入申請書必要。布団・大型家具OK。",status:"未連絡",services:["処分"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:11,name:"上津クリーンセンター",cat:"クリーンセンター・市役所",phone:"要確認",url:"",permit:"—",sim:"—",appt:"",quote:"10kgごと50円（現金）",contact:"",notes:"燃やせるごみのみ。金属パーツ付きは不可。月〜土8:30〜17:00。",status:"未連絡",services:["処分"],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:12,name:"粗大ごみ Web申込",cat:"クリーンセンター・市役所",phone:"",url:"https://kurume-sodaigomi.com",permit:"—",sim:"—",appt:"",quote:"品目ごと310〜1,270円",contact:"",notes:"24時間受付。収集日の7日前17時まで申込。クレカ・PayPay可。LINE申込も可。",status:"未連絡",services:["処分"],estMethod:["フォーム入力"],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:13,name:"粗大ごみ コールセンター",cat:"クリーンセンター・市役所",phone:"0942-37-3383",url:"",permit:"—",sim:"—",appt:"",quote:"特別収集：2t車1台8,530円",contact:"",notes:"平日9〜17時受付。品目が多い場合は電話申込推奨。大量処分は特別収集が便利。",status:"未連絡",services:["処分"],estMethod:["電話"],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+  {id:14,name:"久留米市役所 広聴・相談課",cat:"相談窓口",phone:"0942-30-9017",url:"",permit:"—",sim:"—",appt:"",quote:"無料",contact:"",notes:"城南町15-3 本庁6階。月〜金8:30〜17:15。予約不要。業者トラブル・一般相談。",status:"未連絡",services:[],estMethod:[],aprilOK:"未確認",prepNotes:"",confirmedDate:""},
+];
+
+let vendors = [];
+let currentFilter = "すべて";
+let delPending = null;
+let editMode = false;
+
+function load() {
+  try {
+    const d = localStorage.getItem(STORAGE_KEY);
+    if (d) { const p = JSON.parse(d); vendors = p.v || INIT; showTs(p.ts || ""); }
+    else vendors = INIT;
+  } catch { vendors = INIT; }
+  renderTabs(); render();
+}
+
+function save() {
+  const ts = new Date().toLocaleString('ja-JP',{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({v:vendors,ts})); } catch {}
+  showTs(ts); render();
+}
+
+function showTs(ts) {
+  document.getElementById("ts-label").textContent = ts ? "更新:" + ts : "";
+}
+
+function renderTabs() {
+  const el = document.getElementById("tabs");
+  el.innerHTML = CATS.map(c => {
+    const cnt = c === "すべて" ? "" : ` (${vendors.filter(v=>v.cat===c).length})`;
+    return `<button class="tab ${currentFilter===c?'on':''}" onclick="setFilter('${c}')">${c}${cnt}</button>`;
+  }).join("");
+}
+
+function setFilter(f) { currentFilter = f; delPending = null; renderTabs(); render(); }
+
+function badge(status) {
+  const s = SS[status] || SS["未連絡"];
+  return `<span class="badge" style="background:${s.bg};color:${s.col};border:1px solid ${s.bd}" title="クリックでステータス変更">${status}</span>`;
+}
+
+function esc(s) { return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
+function render() {
+  const filtered = vendors.filter(v => currentFilter === "すべて" || v.cat === currentFilter);
+  const tbody = document.getElementById("tbody");
+  const SVC_SHORT = {"処分":"処分","買取":"買取","施設へ運搬":"運搬","原状復帰・清掃":"清掃","その他":"他"};
+  const APRIL_STYLE = {
+    "Yes":   {bg:"#EAF3DE",col:"#27500A",bd:"#C0DD97"},
+    "No":    {bg:"#FAECE7",col:"#712B13",bd:"#F5C4B3"},
+    "未確認":{bg:"#F1EFE8",col:"#888780",bd:"#D3D1C7"},
+  };
+  tbody.innerHTML = filtered.map((v, i) => {
+    const s = SS[v.status] || SS["未連絡"];
+    const svcs = v.services || [];
+    const svcHtml = svcs.length > 0
+      ? svcs.map(sv => `<span class="svc-badge">${esc(SVC_SHORT[sv]||sv)}</span>`).join("")
+      : '<span class="muted">—</span>';
+    const apKey = v.aprilOK || "未確認";
+    const ap = APRIL_STYLE[apKey] || APRIL_STYLE["未確認"];
+    const delRow = delPending === v.id
+      ? `<span class="del-confirm"><span>削除?</span> <button class="ibtn del" onclick="doDelete(${v.id})">はい</button> <button class="ibtn" onclick="cancelDel()">いいえ</button></span>`
+      : `<button class="ibtn" onclick="openEdit(${v.id})">編集</button> <button class="ibtn del" onclick="confirmDel(${v.id})">削除</button>`;
+    return `<tr>
+      <td style="text-align:center;color:#888780;font-size:11px">${i + 1}</td>
+      <td>
+        <div style="font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.name)}</div>
+        ${v.url ? `<a class="link" href="${esc(v.url)}" target="_blank">リンク</a>` : ""}
+      </td>
+      <td style="color:#888780;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${esc(v.cat)}</td>
+      <td style="line-height:1.6">${svcHtml}</td>
+      <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(v.phone)}</td>
+      <td style="text-align:center"><span class="badge" style="background:${ap.bg};color:${ap.col};border:1px solid ${ap.bd};font-size:10px">${esc(apKey)}</span></td>
+      <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px" title="${esc(v.appt)}">${v.appt?esc(v.appt).replace(/\n/g,' ／ '):'<span class="muted">—</span>'}</td>
+      <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px">${v.confirmedDate?`<strong>${esc(v.confirmedDate)}</strong>`:'<span class="muted">—</span>'}</td>
+      <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.quote?esc(v.quote):'<span class="muted">—</span>'}</td>
+      <td style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.contact?esc(v.contact):'<span class="muted">—</span>'}</td>
+      <td style="color:#888780;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(v.notes)}">${v.notes?esc(v.notes):'—'}</td>
+      <td style="text-align:center"><span class="badge" style="background:${s.bg};color:${s.col};border:1px solid ${s.bd};cursor:pointer" onclick="cycleStatus(${v.id})" title="クリックでステータス変更">${esc(v.status)}</span></td>
+      <td style="white-space:nowrap">${delRow}</td>
+    </tr>`;
+  }).join("") || `<tr><td colspan="13" style="text-align:center;padding:20px;color:#888780">該当する業者がありません</td></tr>`;
+
+  const summary = document.getElementById("summary");
+  const counts = STATS.map(s => {
+    const c = vendors.filter(v=>v.status===s).length;
+    if (!c) return "";
+    const st = SS[s];
+    return `<span><span class="sum-badge" style="background:${st.bg};color:${st.col};border:1px solid ${st.bd}">${s}</span> ${c}社</span>`;
+  }).filter(Boolean).join("");
+  summary.innerHTML = counts + `<span style="margin-left:auto">計 ${vendors.length}社</span>`;
+}
+
+function cycleStatus(id) {
+  const v = vendors.find(x=>x.id===id);
+  if (!v) return;
+  const i = STATS.indexOf(v.status);
+  v.status = STATS[(i+1) % STATS.length];
+  save();
+}
+
+function confirmDel(id) { delPending = id; render(); }
+function cancelDel() { delPending = null; render(); }
+function doDelete(id) { vendors = vendors.filter(v=>v.id!==id); delPending = null; save(); renderTabs(); }
+
+function maxId() { return vendors.length > 0 ? Math.max(...vendors.map(v=>v.id)) : 0; }
+
+function openAdd() {
+  editMode = false;
+  document.getElementById("modal-title").textContent = "業者を追加";
+  document.getElementById("btn-save-label").textContent = "追加";
+  document.getElementById("edit-id").value = maxId() + 1;
+  ["name","phone","url","appt","quote","contact","notes","prepNotes","confirmedDate"].forEach(f => document.getElementById("f-"+f).value="");
+  document.getElementById("f-cat").value = "不用品回収";
+  document.getElementById("f-status").value = "未連絡";
+  document.getElementById("f-permit").value = "未確認";
+  document.getElementById("f-sim").value = "△";
+  document.getElementById("f-april").value = "未確認";
+  document.querySelectorAll('input[name="services"]').forEach(cb => cb.checked = false);
+  document.querySelectorAll('input[name="estMethod"]').forEach(cb => cb.checked = false);
+  document.getElementById("overlay").style.display = "flex";
+}
+
+function openEdit(id) {
+  const v = vendors.find(x=>x.id===id);
+  if (!v) return;
+  editMode = true;
+  document.getElementById("modal-title").textContent = "業者情報を編集";
+  document.getElementById("btn-save-label").textContent = "保存";
+  document.getElementById("edit-id").value = v.id;
+  document.getElementById("f-name").value = v.name;
+  document.getElementById("f-cat").value = v.cat;
+  document.getElementById("f-status").value = v.status;
+  document.getElementById("f-phone").value = v.phone;
+  document.getElementById("f-contact").value = v.contact;
+  document.getElementById("f-url").value = v.url;
+  document.getElementById("f-permit").value = v.permit;
+  document.getElementById("f-sim").value = v.sim;
+  document.getElementById("f-appt").value = v.appt;
+  document.getElementById("f-quote").value = v.quote;
+  document.getElementById("f-notes").value = v.notes;
+  document.getElementById("f-april").value = v.aprilOK || "未確認";
+  document.getElementById("f-prepNotes").value = v.prepNotes || "";
+  document.getElementById("f-confirmedDate").value = v.confirmedDate || "";
+  const svcs = v.services || [];
+  document.querySelectorAll('input[name="services"]').forEach(cb => cb.checked = svcs.includes(cb.value));
+  const ems = v.estMethod || [];
+  document.querySelectorAll('input[name="estMethod"]').forEach(cb => cb.checked = ems.includes(cb.value));
+  document.getElementById("overlay").style.display = "flex";
+}
+
+function closeModal() { document.getElementById("overlay").style.display = "none"; }
+function overlayClick(e) { if (e.target.id === "overlay") closeModal(); }
+
+function saveModal() {
+  const name = document.getElementById("f-name").value.trim();
+  if (!name) { document.getElementById("f-name").focus(); return; }
+  const id = parseInt(document.getElementById("edit-id").value);
+  const services  = [...document.querySelectorAll('input[name="services"]:checked')].map(cb => cb.value);
+  const estMethod = [...document.querySelectorAll('input[name="estMethod"]:checked')].map(cb => cb.value);
+  const v = {
+    id, name,
+    cat:           document.getElementById("f-cat").value,
+    status:        document.getElementById("f-status").value,
+    phone:         document.getElementById("f-phone").value,
+    contact:       document.getElementById("f-contact").value,
+    url:           document.getElementById("f-url").value,
+    permit:        document.getElementById("f-permit").value,
+    sim:           document.getElementById("f-sim").value,
+    appt:          document.getElementById("f-appt").value,
+    quote:         document.getElementById("f-quote").value,
+    notes:         document.getElementById("f-notes").value,
+    services,
+    estMethod,
+    aprilOK:       document.getElementById("f-april").value,
+    prepNotes:     document.getElementById("f-prepNotes").value,
+    confirmedDate: document.getElementById("f-confirmedDate").value,
+  };
+  if (editMode) vendors = vendors.map(x=>x.id===id?v:x);
+  else vendors.push(v);
+  closeModal(); save(); renderTabs();
+}
+
+document.addEventListener("keydown", e => { if (e.key==="Escape") closeModal(); });
+load();
+</script>
+</body>
+</html>
